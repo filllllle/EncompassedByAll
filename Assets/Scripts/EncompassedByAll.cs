@@ -15,10 +15,6 @@ public class EncompassedByAll : MonoBehaviourPunCallbacks
     [SerializeField]
     string majorGameVersion = "0";
 
-    [SerializeField]
-    Player playerPrefab;
-
-
 
     string playerName;
     public string PlayerName
