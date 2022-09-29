@@ -21,16 +21,21 @@ public class GameManager : MonoBehaviourPunCallbacks
         Instance.allPlayers.Add(player);
     }
 
-    public override void OnPlayerLeftRoom(Photon.Realtime.Player otherPlayer)
+    public static void RemovePlayer(Player player)
     {
-        foreach(Player p in allPlayers)
-        {
-            if(p.PunPlayer == otherPlayer)
-            {
-                allPlayers.Remove(p);
-            }
-        }
+        Instance.allPlayers.Remove(player);
     }
+
+    //public override void OnPlayerLeftRoom(Photon.Realtime.Player otherPlayer)
+    //{
+    //    foreach(Player p in allPlayers)
+    //    {
+    //        if(p.PunPlayer == otherPlayer)
+    //        {
+    //            allPlayers.Remove(p);
+    //        }
+    //    }
+    //}
 
     public override void OnLeftRoom()
     {

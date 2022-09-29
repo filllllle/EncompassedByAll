@@ -22,7 +22,12 @@ public class Player : MonoBehaviourPunCallbacks
         playerNameText.text = EncompassedByAll.Instance.PlayerName;
         playerNameText.text = PunPlayer.NickName;
 
+        GameManager.AddPlayer(this);
+    }
 
+    void OnDestroy()
+    {
+        GameManager.RemovePlayer(this);
     }
 
     void Update()
