@@ -10,8 +10,16 @@ public class GameManager : MonoBehaviourPunCallbacks
 {
     public static GameManager Instance;
 
+    [SerializeField]
+    bool debugMode;
+
+    [SerializeField]
+    SpawnPoints levelSpawnPoints;
+
     [Tooltip("This is the prefab used for spawning in players")]
     public GameObject playerPrefab;
+
+    public static bool DEBUG_MODE { get => Instance.debugMode; }
 
     private List<Player> allPlayers;
     public Player[] Players { get => allPlayers.ToArray(); }
@@ -25,6 +33,16 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         Instance.allPlayers.Remove(player);
     }
+
+    [SerializeField]
+    Camera mainCamera;
+
+    [SerializeField]
+    float playerInteractRadius;
+
+    public Camera MainCamera { get => mainCamera; }
+
+    public float PlayerInteractRadius { get => playerInteractRadius; set => playerInteractRadius = value; }
 
     //public override void OnPlayerLeftRoom(Photon.Realtime.Player otherPlayer)
     //{
@@ -52,11 +70,21 @@ public class GameManager : MonoBehaviourPunCallbacks
             Debug.LogError("Missing playerPrefab reference.");
         }
 
-        PhotonNetwork.Instantiate(playerPrefab.name, new Vector3(0, 0, 0), Quaternion.identity, 0);
+        PhotonNetwork.Instantiate(playerPrefab.name, levelSpawnPoints.SpawnPositions[0].position, Quaternion.identity, 0);
     }
 
     void Update()
     {
         
     }
+
+
+#if DEBUG || UNITY_EDITOR || UNITY_EDITOR_64 || UNITY_EDITOR_WIN
+
+    void DrawPlayerInformation(Player player)
+    {
+
+    }
+
+#endif
 }
