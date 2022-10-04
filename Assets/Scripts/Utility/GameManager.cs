@@ -70,7 +70,9 @@ public class GameManager : MonoBehaviourPunCallbacks
             Debug.LogError("Missing playerPrefab reference.");
         }
 
-        PhotonNetwork.Instantiate(playerPrefab.name, levelSpawnPoints.SpawnPositions[0].position, Quaternion.identity, 0);
+        int actornr = PhotonNetwork.LocalPlayer.ActorNumber;
+
+        PhotonNetwork.Instantiate(playerPrefab.name, levelSpawnPoints.SpawnPositions[actornr].position, Quaternion.identity, 0);
     }
 
     void Update()
