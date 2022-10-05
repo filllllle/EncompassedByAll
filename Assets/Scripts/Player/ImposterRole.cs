@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class ImposterRole : PlayerRole
 {
+    float killCooldown;
+
     void Start()
     {
         

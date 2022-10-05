@@ -15,6 +15,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     [SerializeField]
     bool debugMode;
+    public static bool DEBUG_MODE { get => Instance.debugMode; }
 
     [SerializeField]
     SpawnPoints levelSpawnPoints;
@@ -22,7 +23,6 @@ public class GameManager : MonoBehaviourPunCallbacks
     [Tooltip("This is the prefab used for spawning in players")]
     public GameObject playerPrefab;
 
-    public static bool DEBUG_MODE { get => Instance.debugMode; }
 
     private List<Player> allPlayers;
     public Player[] Players { get => allPlayers.ToArray(); }
