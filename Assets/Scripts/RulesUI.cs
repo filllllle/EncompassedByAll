@@ -27,6 +27,8 @@ public class RulesUI : MonoBehaviourPunCallbacks
         }
         else
         {
+            OnValueChange("hej");
+
             impostersInputField.onValueChanged.AddListener(OnValueChange);
             killCooldownInputField.onValueChanged.AddListener(OnValueChange);
             tasksInputField.onValueChanged.AddListener(OnValueChange);

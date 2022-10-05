@@ -17,8 +17,13 @@ public class GameManager : MonoBehaviourPunCallbacks
     bool debugMode;
     public static bool DEBUG_MODE { get => Instance.debugMode; }
 
+    #region Common Variables (Master Client and Clients)
+
     [SerializeField]
     SpawnPoints levelSpawnPoints;
+
+    [SerializeField]
+    Task[] availableTasks;
 
     [Tooltip("This is the prefab used for spawning in players")]
     public GameObject playerPrefab;
@@ -46,11 +51,6 @@ public class GameManager : MonoBehaviourPunCallbacks
     [SerializeField]
     float playerInteractRadius;
 
-    public GameObject localPlayer;
-
-    public Camera MainCamera { get => mainCamera; }
-
-    public Canvas WorldUI { get => worldUI; }
 
     public float PlayerInteractRadius { get => playerInteractRadius; set => playerInteractRadius = value; }
 
@@ -60,6 +60,40 @@ public class GameManager : MonoBehaviourPunCallbacks
     private int desiredImposters = 1;
 
     private int taskAmount = 1;
+
+    public float KillCooldown { get => killCooldown; }
+    public int DesiredImposters { get => desiredImposters; }
+    public int TaskAmount { get => taskAmount; }
+
+    #endregion
+
+    #region Local Variables
+
+    public GameObject localPlayer;
+    public Camera MainCamera { get => mainCamera; }
+    public Canvas WorldUI { get => worldUI; }
+
+    private int[] assignedTasks;
+
+    public List<Task> LocalPlayerTasks
+    {
+        get
+        {
+            List<Task> tasks = new List<Task>();
+
+            if (assignedTasks == null)
+                return tasks;
+
+            for (int i = 0; i < assignedTasks.Length; i++)
+            {
+                tasks.Add(availableTasks[i]);
+            }
+
+            return tasks;
+        }
+    }
+
+    #endregion
 
     public override void OnLeftRoom()
     {
@@ -85,33 +119,36 @@ public class GameManager : MonoBehaviourPunCallbacks
         desiredImposters = System.Convert.ToInt32(ic as string);
         taskAmount = System.Convert.ToInt32(tc as string);
 
-
         int actornr = PhotonNetwork.LocalPlayer.ActorNumber;
         localPlayer = PhotonNetwork.Instantiate(playerPrefab.name, levelSpawnPoints.SpawnPositions[actornr].position, Quaternion.identity, 0);
 
         if (PhotonNetwork.IsMasterClient)
         {
-            this.Invoke("DelayedStart", 0.5f);
+            this.Invoke("GameStart", 0.5f);
         }
     }
 
-    void DelayedStart()
+    void GameStart()
     {
 
         Photon.Realtime.Room currentRoom = PhotonNetwork.CurrentRoom;
         int amountOfPlayers = currentRoom.Players.Count;
 
         int imposterCount = 0;
-        if (!currentRoom.CustomProperties.TryGetValue<int>("imposters", out imposterCount))
-        {
-            if (amountOfPlayers > 6) imposterCount = 2;
-            else imposterCount = 1;
-        }
+
+        if (amountOfPlayers > 6) imposterCount = 2;
+        else imposterCount = 1;
+
+        if (amountOfPlayers > desiredImposters)
+            imposterCount = desiredImposters;
+
+
 
         int[] imposters = new int[imposterCount];
         for (int i = 0; i < imposterCount; i++)
         {
             imposters[i] = RandomNumberGenerator.GetInt32(0, amountOfPlayers);
+            Debug.LogFormat("Making player {0} into imposter", imposters[i]);
         }
 
         var enumerator = currentRoom.Players.Values.GetEnumerator();
@@ -120,14 +157,42 @@ public class GameManager : MonoBehaviourPunCallbacks
         Debug.Log("Assigning roles now");
         for (int i = 0; i < amountOfPlayers; i++)
         {
-            Debug.LogFormat("Sent to {0}", enumerator.Current.NickName);
 
-            if (!imposters.Contains(i)) photonView.RPC("AssignRole", RpcTarget.All, enumerator.Current, PlayerRole.PlayerRoles.Crewmate);
-            else photonView.RPC("AssignRole", RpcTarget.All, enumerator.Current, PlayerRole.PlayerRoles.Imposter);
+            if (!imposters.Contains(i))
+            {
+                photonView.RPC("AssignRole", RpcTarget.All, enumerator.Current, PlayerRole.PlayerRoles.Crewmate);
+                Debug.LogFormat("Sent {0} to {1}", PlayerRole.PlayerRoles.Crewmate, enumerator.Current.NickName);
+            }
+            else
+            {
+                photonView.RPC("AssignRole", RpcTarget.All, enumerator.Current, PlayerRole.PlayerRoles.Imposter);
+                Debug.LogFormat("Sent {0} to {1}", PlayerRole.PlayerRoles.Imposter, enumerator.Current.NickName);
+            }
 
             enumerator.MoveNext();
         }
 
+        GenerateTasks();
+    }
+
+    void GenerateTasks()
+    {
+        foreach (Player p in allPlayers)
+        {
+            // In case player is NOT an imposter
+            if (p.GetComponent<ImposterRole>() == null)
+            {
+                int[] playerTasks = new int[TaskAmount];
+
+                for (int i = 0; i < TaskAmount; i++)
+                {
+                    if (availableTasks != null && availableTasks.Length != 0) playerTasks[i] = RandomNumberGenerator.GetInt32(0, availableTasks.Length);
+                    else playerTasks[i] = -1;
+                }
+
+                photonView.RPC("AssignTasks", p.photonView.Owner, playerTasks as object);
+            }
+        }
     }
 
     void Update()
@@ -135,6 +200,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     }
 
+    #region Debug Window
 
 #if DEBUG || UNITY_EDITOR || UNITY_EDITOR_64 || UNITY_EDITOR_WIN
 
@@ -175,6 +241,29 @@ public class GameManager : MonoBehaviourPunCallbacks
 
             ImGui.NextColumn();
         }
+
+        ImGui.Separator();
+
+        
+
+        List<Task> tasks = LocalPlayerTasks;
+        
+        for(int i = 0; i < tasks.Count; i++)
+        {
+            ImGui.Columns(2, "tasks", true);
+            ImGui.SetColumnWidth(0, 50);
+            ImGui.SetColumnWidth(1, 300);
+
+
+            ImGui.TextUnformatted((i + 1).ToString());
+
+            ImGui.NextColumn();
+            ImGui.TextUnformatted(tasks[i].name);
+
+            ImGui.NextColumn();
+        }
+
+
         ImGui.End();
     }
 
@@ -196,10 +285,27 @@ public class GameManager : MonoBehaviourPunCallbacks
         base.OnEnable();
     }
 
+    #endregion
+
+    [PunRPC]
+    void AssignTasks(int[] taskNames)
+    {
+        string tasksRecieved = "Recieved tasks: ";
+
+        foreach (int o in taskNames)
+        {
+            if (System.Convert.ToInt32(o) > 0) tasksRecieved = string.Concat(tasksRecieved, ", ", availableTasks[o]);
+            else tasksRecieved = string.Concat(tasksRecieved, ", ", "Incorrect Task");
+        }
+
+        Debug.Log(tasksRecieved);
+    }
+
     [PunRPC]
     void AssignRole(Photon.Realtime.Player player, PlayerRole.PlayerRoles playerRole, PhotonMessageInfo messageInfo)
     {
         GameObject p = player.TagObject as GameObject;
         p.SendMessage("RecieveRole", playerRole);
     }
+
 }
