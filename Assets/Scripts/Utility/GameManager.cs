@@ -54,16 +54,12 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     public float PlayerInteractRadius { get => playerInteractRadius; set => playerInteractRadius = value; }
 
-    //public override void OnPlayerLeftRoom(Photon.Realtime.Player otherPlayer)
-    //{
-    //    foreach(Player p in allPlayers)
-    //    {
-    //        if(p.PunPlayer == otherPlayer)
-    //        {
-    //            allPlayers.Remove(p);
-    //        }
-    //    }
-    //}
+
+    private float killCooldown = 10;
+
+    private int desiredImposters = 1;
+
+    private int taskAmount = 1;
 
     public override void OnLeftRoom()
     {
@@ -79,6 +75,16 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             Debug.LogError("Missing playerPrefab reference.");
         }
+
+
+        bool icb = PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue("impostercount", out object ic);
+        bool kcb = PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue("killcooldown", out object kc);
+        bool tcb = PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue("taskcount", out object tc);
+
+        killCooldown = System.Convert.ToInt32(kc as string);
+        desiredImposters = System.Convert.ToInt32(ic as string);
+        taskAmount = System.Convert.ToInt32(tc as string);
+
 
         int actornr = PhotonNetwork.LocalPlayer.ActorNumber;
         localPlayer = PhotonNetwork.Instantiate(playerPrefab.name, levelSpawnPoints.SpawnPositions[actornr].position, Quaternion.identity, 0);

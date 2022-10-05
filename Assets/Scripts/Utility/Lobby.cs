@@ -25,10 +25,16 @@ public class Lobby : MonoBehaviour
         {
             connectLabel.text = "Error";
         }
+
+        if(!PhotonNetwork.IsMasterClient)
+        {
+            startButton.gameObject.SetActive(false);
+        }
     }
 
     void OnStartClicked()
     {
-        SceneManager.LoadScene(2);
+        PhotonNetwork.LoadLevel(2);
+        //SceneManager.LoadScene(2);
     }
 }
