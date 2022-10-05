@@ -8,6 +8,7 @@ using Photon.Realtime;
 using ExitGames.Client.Photon.StructWrapping;
 using System.Security.Cryptography;
 using ImGuiNET;
+using UnityEngine.EventSystems;
 
 public class GameManager : MonoBehaviourPunCallbacks
 {
@@ -74,7 +75,12 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     #region Local Variables
 
+    [SerializeField]
+    EventSystem eventSystem;
+
     public GameObject localPlayer;
+
+    public EventSystem EventSystem { get => eventSystem; }
     public Camera MainCamera { get => mainCamera; }
     public Canvas WorldUI { get => worldUI; }
 
@@ -255,15 +261,18 @@ public class GameManager : MonoBehaviourPunCallbacks
         
         for(int i = 0; i < tasks.Count; i++)
         {
-            ImGui.Columns(2, "tasks", true);
+            ImGui.Columns(3, "tasks", true);
             ImGui.SetColumnWidth(0, 50);
             ImGui.SetColumnWidth(1, 300);
-
+            ImGui.SetColumnWidth(1, 100);
 
             ImGui.TextUnformatted((i + 1).ToString());
 
             ImGui.NextColumn();
             ImGui.TextUnformatted(tasks[i].TaskName);
+
+            ImGui.NextColumn();
+            ImGui.TextUnformatted("Resolved: " + tasks[i].IsResolved.ToString());
 
             ImGui.NextColumn();
         }
@@ -299,8 +308,14 @@ public class GameManager : MonoBehaviourPunCallbacks
 
         foreach (int o in taskNames)
         {
-            if (System.Convert.ToInt32(o) > 0) tasksRecieved = string.Concat(tasksRecieved, ", ", availableTasks[o].TaskName);
+            if (System.Convert.ToInt32(o) >= 0) tasksRecieved = string.Concat(tasksRecieved, ", ", availableTasks[o].TaskName);
             else tasksRecieved = string.Concat(tasksRecieved, ", ", "Incorrect Task");
+        }
+
+        assignedTasks = taskNames;
+        for(int i = 0; i < assignedTasks.Length; i++)
+        {
+            availableTasks[i].SetAsUnresolved();
         }
 
         Debug.Log(tasksRecieved);
@@ -311,6 +326,12 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         GameObject p = player.TagObject as GameObject;
         p.SendMessage("RecieveRole", playerRole);
+    }
+
+    [PunRPC]
+    void ResolveTask(int id, PhotonMessageInfo messageInfo)
+    {
+
     }
 
 }

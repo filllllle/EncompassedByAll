@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class ClickTask : Task
 {
+    [SerializeField]
+    ClickGamePanel gamePanel;
+
     protected override void OnStart()
     {
 
@@ -11,7 +14,7 @@ public class ClickTask : Task
 
     public override void OnInteract()
     {
-        
+        gamePanel.Show();
     }
 
 }

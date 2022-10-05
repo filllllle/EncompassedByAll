@@ -15,7 +15,7 @@ public abstract class Task : MonoBehaviour
 
     public string TaskName { get => taskName; }
 
-    bool resolved;
+    bool resolved = true;
 
     public bool IsResolved { get => resolved; }
 
@@ -39,7 +39,13 @@ public abstract class Task : MonoBehaviour
         spriteRenderer.sprite = originalSprite;
     }
 
-    protected void SetAsResolved()
+    public void SetAsUnresolved()
+    {
+        resolved = false;
+    }
+
+
+    public void SetAsResolved()
     {
         resolved = true;
     }
