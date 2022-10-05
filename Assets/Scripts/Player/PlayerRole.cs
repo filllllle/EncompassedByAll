@@ -4,17 +4,30 @@ using UnityEngine;
 using UnityEditor;
 using Photon.Pun;
 
-public class PlayerRole : MonoBehaviourPun
+public abstract class PlayerRole : MonoBehaviourPun
 {
+    public enum PlayerRoles
+    {
+        Crewmate = 0,
+        Imposter = 1,
+    }
+
     public static float InteractRadius
     {
         get => GameManager.Instance.PlayerInteractRadius;
         set => GameManager.Instance.PlayerInteractRadius = value;
     }
 
+    [SerializeField]
+    PlayerInteractionUI interactionUI;
+
+    public Player PlayerOwner { get; set; }
+
+    public PlayerInteractionUI InteractionUI { get => interactionUI; }
+
     void Start()
     {
-
+        interactionUI.LocalPlayer = PlayerOwner;
     }
 
     void Update()
@@ -40,8 +53,7 @@ public class PlayerRole : MonoBehaviourPun
     }
 #endif
 
-    protected virtual void LocalUpdate()
-    {
+    protected abstract void LocalUpdate();
 
-    }
+    public abstract PlayerRoles GetPlayerRole();
 }

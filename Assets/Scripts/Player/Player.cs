@@ -4,7 +4,7 @@ using UnityEngine;
 using TMPro;
 using Photon.Pun;
 
-public class Player : MonoBehaviourPun
+public class Player : MonoBehaviourPunCallbacks
 { 
     [SerializeField]
     TextMeshProUGUI playerNameText;
@@ -54,6 +54,8 @@ public class Player : MonoBehaviourPun
 
         GameManager.AddPlayer(this);
 
+        photonView.Owner.TagObject = gameObject;
+
 
         if(photonView.IsMine)
         {
@@ -73,8 +75,26 @@ public class Player : MonoBehaviourPun
         if(!photonView.IsMine)
         {
             return;
+        }  
+    }
+
+    void RecieveRole(PlayerRole.PlayerRoles role)
+    {
+        if (photonView.IsMine)
+        {
+            Debug.LogFormat("I am {0}", role);
         }
 
-      
+        switch (role)
+        {
+            case PlayerRole.PlayerRoles.Crewmate:
+                gameObject.AddComponent<CrewmateRole>();
+                break;
+            case PlayerRole.PlayerRoles.Imposter:
+                gameObject.AddComponent<ImposterRole>();
+                break;
+            default:
+                break;
+        }
     }
 }
