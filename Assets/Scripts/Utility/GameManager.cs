@@ -49,6 +49,9 @@ public class GameManager : MonoBehaviourPunCallbacks
     Canvas worldUI;
 
     [SerializeField]
+    Canvas playerUI;
+
+    [SerializeField]
     float playerInteractRadius;
 
 
@@ -64,6 +67,8 @@ public class GameManager : MonoBehaviourPunCallbacks
     public float KillCooldown { get => killCooldown; }
     public int DesiredImposters { get => desiredImposters; }
     public int TaskAmount { get => taskAmount; }
+
+    public Canvas PlayerUI { get => playerUI; }
 
     #endregion
 
@@ -258,7 +263,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             ImGui.TextUnformatted((i + 1).ToString());
 
             ImGui.NextColumn();
-            ImGui.TextUnformatted(tasks[i].name);
+            ImGui.TextUnformatted(tasks[i].TaskName);
 
             ImGui.NextColumn();
         }
@@ -294,7 +299,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 
         foreach (int o in taskNames)
         {
-            if (System.Convert.ToInt32(o) > 0) tasksRecieved = string.Concat(tasksRecieved, ", ", availableTasks[o]);
+            if (System.Convert.ToInt32(o) > 0) tasksRecieved = string.Concat(tasksRecieved, ", ", availableTasks[o].TaskName);
             else tasksRecieved = string.Concat(tasksRecieved, ", ", "Incorrect Task");
         }
 

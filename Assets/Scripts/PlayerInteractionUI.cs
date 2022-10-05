@@ -15,10 +15,15 @@ public class PlayerInteractionUI : MonoBehaviour
     [SerializeField]
     Button reportButton;
 
+    public Button UseButton { get => useButton; }
+    public Button ReportButton { get => reportButton; }
+
 
     // Imposter Buttons
     [SerializeField]
     Button killButton;
+
+    public Button KillButton { get => killButton; }
 
     private void Start()
     {

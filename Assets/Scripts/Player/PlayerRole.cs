@@ -23,7 +23,7 @@ public abstract class PlayerRole : MonoBehaviourPun
 
     public Player PlayerOwner { get; set; }
 
-    public PlayerInteractionUI InteractionUI { get => interactionUI; }
+    public PlayerInteractionUI InteractionUI { get => interactionUI; set => interactionUI = value; }
 
     void Start()
     {

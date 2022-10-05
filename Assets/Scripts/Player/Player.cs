@@ -85,16 +85,24 @@ public class Player : MonoBehaviourPunCallbacks
             Debug.LogFormat("I am {0}", role);
         }
 
+
+        PlayerRole playerRole = null;
+
         switch (role)
         {
             case PlayerRole.PlayerRoles.Crewmate:
-                gameObject.AddComponent<CrewmateRole>();
+                playerRole = gameObject.AddComponent<CrewmateRole>();
                 break;
             case PlayerRole.PlayerRoles.Imposter:
-                gameObject.AddComponent<ImposterRole>();
+                playerRole = gameObject.AddComponent<ImposterRole>();
                 break;
             default:
                 break;
+        }
+
+        if(playerRole)
+        {
+            playerRole.InteractionUI = GameManager.Instance.PlayerUI.GetComponent<PlayerInteractionUI>();
         }
     }
 }
