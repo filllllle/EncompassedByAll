@@ -25,13 +25,12 @@ public class Player : MonoBehaviourPunCallbacks
     Rigidbody2D playerRigidbody;
 
     [SerializeField]
-    Canvas playerCanvasUI;
-
-    [SerializeField]
     TextMeshProUGUI playerName;
 
     [SerializeField]
     PlayerHeadwear headwearSocket;
+
+    List<Task> playerTasks;
 
     Camera playerCamera;
 
@@ -47,7 +46,7 @@ public class Player : MonoBehaviourPunCallbacks
 
     void Start()
     {
-        playerCanvasUI.gameObject.SetActive(false);
+        playerNameText.transform.SetParent(GameManager.Instance.WorldUI.transform);
 
         playerNameText.text = EncompassedByAll.Instance.PlayerName;
         playerNameText.text = PunPlayer.NickName;
@@ -60,18 +59,19 @@ public class Player : MonoBehaviourPunCallbacks
         if(photonView.IsMine)
         {
             playerCamera = GameManager.Instance.MainCamera;
-            playerCanvasUI.gameObject.SetActive(true);
-            playerCanvasUI.worldCamera = PlayerCamera;
         }
     }
 
     void OnDestroy()
     {
+        Destroy(playerNameText);
         GameManager.RemovePlayer(this);
     }
 
     void Update()
     {
+        playerNameText.transform.position = transform.position + Vector3.up * 1.0f;
+
         if(!photonView.IsMine)
         {
             return;

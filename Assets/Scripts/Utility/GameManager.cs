@@ -41,11 +41,16 @@ public class GameManager : MonoBehaviourPunCallbacks
     Camera mainCamera;
 
     [SerializeField]
+    Canvas worldUI;
+
+    [SerializeField]
     float playerInteractRadius;
 
     public GameObject localPlayer;
 
     public Camera MainCamera { get => mainCamera; }
+
+    public Canvas WorldUI { get => worldUI; }
 
     public float PlayerInteractRadius { get => playerInteractRadius; set => playerInteractRadius = value; }
 
